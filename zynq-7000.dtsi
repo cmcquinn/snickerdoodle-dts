@@ -70,6 +70,23 @@
 			interrupts = <0 7 4>;
 			interrupt-parent = <&intc>;
 			clocks = <&clkc 12>;
+
+			xlnx,channels {
+				#address-size = <0x1>;
+				#size-cells = <0x0>;
+				channel@2 {
+					reg = <1>;
+				};
+				channel@9 {
+					reg = <9>;
+				};
+				channel@13 {
+					reg = <13>;
+				};
+				channel@14 {
+					reg = <14>;
+				};
+			};
 		};
 
 		can0: can@e0008000 {
