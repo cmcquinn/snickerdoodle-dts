@@ -2,49 +2,25 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+src += $(wildcard *.dts)
+obj += $(src:.dts=.dtb)
 
-dtb-y += snickerdoodle.dtb
-dtb-y += snickerdoodle-one.dtb
-dtb-y += snickerdoodle-black.dtb
-dtb-y += snickerdoodle-prime.dtb
-dtb-y += snickerdoodle-prime-le.dtb
+PHONY += all
+all: $(obj)
 
-# Add the device tree overlays
-dtbo-y += dtso/
+# Do not print the directory
+MAKEFLAGS += --no-print-directory
+Q = @
 
-# Add baseboard device trees
-board-dtb += baseboard/
-
-all : $(dtb-y) dtbo board_dtb
-
-%.dtb : %.dts
+%.dtb: %.dts
 	@echo "  $< --> $@"
-	@dtc -I dts -O dtb -o $@ $<
+	@dtc -@ -q -I dts -O dtb -o $@ $<
 
-.PHONY = dtbo
+%.dtbo: %.dts
+	@dtc -q -I dts -O dtb -o $@ $<
 
-dtbo : $(dtbo-y)
-	@echo "-- Building overlays"
-	$(MAKE) -C $<
+PHONY += clean
+clean:
+	$(Q)rm -f $(obj)
 
-
-export DTSI_DIR=${PWD}
-
-.PHONY : board_dtb
-
-board_dtb : $(board-dtb)
-	@echo "-- Building baseboard device trees"
-	$(MAKE) -C $<
-
-.PHONY : clean_dtbo
-
-clean_dtbo : $(dtbo-y)
-	$(MAKE) -C $< clean
-
-.PHONY : clean_board
-
-clean_board : $(board-dtb)
-	$(MAKE) -C $< clean 
-
-clean : clean_dtbo clean_board
-	@rm -f $(dtb-y)
+.PHONY: $(PHONY)

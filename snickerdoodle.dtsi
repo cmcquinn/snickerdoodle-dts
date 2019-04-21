@@ -10,7 +10,7 @@
 
 /include/ "zynq-7000.dtsi"
 / {
-        compatible = "xlnx,zynq-snickerdoodle", "xlnx,zynq-7000";
+        compatible = "krtkl,snickerdoodle", "xlnx,zynq-7000";
 
 	aliases {
 		serial0 = &uart0;
@@ -26,15 +26,21 @@
 		stdout-path = &uart0;
 	};
 
-        wlan_en_reg: fixed-regulator-wlen {
-                compatible = "regulator-fixed";
-                regulator-name = "wlan-en-regulator";
-                regulator-min-microvolt = <1800000>;
-                regulator-max-microvolt = <1800000>;
-                gpio = <&gpio0 9 4>;
-                startup-delay-us = <70000>;
-                enable-active-high;
-        };
+	wlan_en_reg: fixed-regulator-wlen {
+		compatible = "regulator-fixed";
+		regulator-name = "wlan-en-regulator";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio0 9 4>;
+		startup-delay-us = <70000>;
+		enable-active-high;
+	};
+
+	xlnk {
+		compatible = "xlnx,xlnk-1.0";
+		clock-names = "clk50", "clk100", "clk150", "clk200";
+		clocks = <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
+	};
 };
 
 &clkc {
@@ -58,12 +64,11 @@
 	#address-cells = <1>;
 	#size-cells = <0>;	
 
-        wlcore: wlcore@0 {
-                reg = <2>;
-                interrupt-parent = <&gpio0>;
-                interrupts = <0 4>;
-        };
-
+	wlcore: wlcore@0 {
+		reg = <2>;
+		interrupt-parent = <&gpio0>;
+		interrupts = <0 4>;
+	};
 };
 
 &spi1 {
@@ -78,81 +83,32 @@
 	xlnx,qspi-mode = <1>;
 
 	flash@0 {
-		compatible = "n25q128a11";
-		reg = <0x0>;
-		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <4>;
-		spi-max-frequency = <50000000>;
 		#address-cells = <1>;
 		#size-cells =<1>;
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+		m25p,fast-read;
 		
-		partition@qspi-fsbl-uboot {
-			label = "qspi-fsbl-uboot";
-			reg = <0x0 0x80000>;
+		partition@bootloader {
+			label = "bootloader";
+			reg = <0x0 0xe0000>;
 		};
-
-		partition@qspi-linux {
-			label = "qspi-linux";
-			reg = <0x80000 0x400000>;
+		partition@env {
+			label = "env";
+			reg = <0xe0000 0x20000>;
 		};
-
-		partition@qspi-device-tree {
-			label = "qspi-device-tree";
-			reg = <0x480000 0x10000>;
+		partition@linux {
+			label = "linux";
+			reg = <0x100000 0x500000>;
 		};
-
-		partition@qspi-rootfs {
-			label = "qspi-rootfs";
-			reg = <0x490000 0x8f0000>;
+		partition@devicetree {
+			label = "devicetree";
+			reg = <0x600000 0x620000>;
 		};
-
-		partition@qspi-bitstream {
-			label = "qspi-bitstream";
-			reg = <0xd80000 0x280000>;
+		partition@rootfs {
+			label = "rootfs";
+			reg = <0x620000 0x9e0000>;
 		};
-	};
-};
-
-/ {
-	__symbols__ {
-		regulator_vccpint = &regulator_vccpint;
-		wlan_en_reg = &wlan_en_reg;
-		amba = &amba;
-		adc = &adc;
-		can0 = &can0;
-		can1 = &can1;
-		gpio0 = &gpio0;
-		i2c0 = &i2c0;
-		i2c1 = &i2c1;
-		intc = &intc;
-		L2 = &L2;
-		mc = &mc;
-		ocmc = &ocmc;
-		uart0 = &uart0;
-		uart1 = &uart1;
-		spi0 = &spi0;
-		spi1 = &spi1;
-		qspi = &qspi;
-		smcc = &smcc;
-		nand0 = &nand0;
-		nor0 = &nor0;
-		gem0 = &gem0;
-		gem1 = &gem1;
-		sdhci0 = &sdhci0;
-		sdhci1 = &sdhci1;
-		wlcore = &wlcore;
-		slcr = &slcr;
-		clkc = &clkc;
-		rstc = &rstc;
-		pinctrl0 = &pinctrl0;
-		dmac_s = &dmac_s;
-		devcfg = &devcfg;
-		global_timer = &global_timer;
-		ttc0 = &ttc0;
-		ttc1 = &ttc1;
-		scutimer = &scutimer;
-		usb0 = &usb0;
-		usb1 = &usb1;
-		watchdog0 = &watchdog0;
 	};
 };

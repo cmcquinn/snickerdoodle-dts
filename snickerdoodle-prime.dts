@@ -10,7 +10,4 @@
 
 /dts-v1/;
 /include/ "snickerdoodle-prime.dtsi"
-
-/ {
-	model = "snickerdoodle prime";
-};
+/include/ "uio.dtsi"
