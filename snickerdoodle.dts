@@ -10,7 +10,7 @@
 
 /dts-v1/;
 /include/ "snickerdoodle.dtsi"
-/include/ "uio.dtsi"
+
 
 / {
 	model = "snickerdoodle";
